@@ -4,11 +4,13 @@ Tobii Communicator window.
 This is run from the communications device using Python v3.4 or later.
 v2.1 looks at top fifth of the grid 2 window for a difference in the number of black pixels
 v2.2 works with grid2, grid3 and Tobii communicator
+v3.0 uses context manager to enable hot swapping of microbit
 matt.oppenheim@gmail.com
 '''
 
 import click
 from datetime import datetime
+import logging
 import sys
 # ImageGrab is windows only
 try:
@@ -44,14 +46,45 @@ FRACTION = 0.2
 
 # titles of windows to look for activity in
 
-
 SOFTWARES = ['grid', 'communicator']
+
+logging.basicConfig(
+    format='%(asctime)s.%(msecs)03d %(message)s',
+    level=logging.INFO,
+    datefmt='%H:%M:%S')
+
+
+class Serial_Con():
+    ''' Create a serial connection in a context manager. '''
+
+    def __init__(self, comport, baud=9600):
+        self.comport = comport
+        self.baud = baud
+
+    
+    def __enter__(self):
+        ''' Return a serial port connection. '''
+        try:
+            self.serial_connection = serial.Serial(self.comport, self.baud,
+                rtscts=True, dsrdtr=True)
+            return self.serial_connection
+        except Exception as e:
+            logging.info('serial_connect error {}'.format(e))
+            return None
+
+
+    def __exit__(self, *args):
+        try:
+            self.serial_connection.close()
+        except Exception as e:
+            logging.info('failed to close serial_connection: {}'.format(e))
+        logging.info('Serial_Con closed')
 
 
 def check_fraction(fraction):
     ''' Check that the faction is >0 and <1. '''
     if not 0.01 < fraction < 0.99:
-        print('Fraction needs to be between 0.01 and 0.99')
+        logging.info('Fraction needs to be between 0.01 and 0.99')
         sys.exit()
 
 
@@ -84,7 +117,7 @@ def find_hwnd(softwares):
         for hwnd, title in winlist:
             if sware in title.lower():
                 return hwnd, title
-    print('no communications software found for {}'.format(SOFTWARES))
+    logging.info('no communications software found for {}'.format(SOFTWARES))
     time.sleep(0.5)
 
 
@@ -108,18 +141,43 @@ def message_mbit(mbit_port, message):
     mbit_port.write(message)
 
 
-def serial_connect(serial_port, baud=9600):
-    ''' Return a serial port connection. '''
-    print('Trying to connect to serial port: {}'.format(serial_port))
+def check_software(mbit_serial, old_black, limit, fraction):
+    ''' Check software for a change. '''
     try:
-        serial_connection = serial.Serial(serial_port, baud,
-            rtscts=True, dsrdtr=True)
-        serial_connection.flushInput()
-    except Exception as e:
-        print('serial_connect error {}'.format(e))
-        return None
-    print('Serial port {} set up with baud {}'.format(serial_port, baud))
-    return serial_connection
+        hwnd, title = find_hwnd(SOFTWARES)
+    except TypeError:
+        ('no communications software found for {}'.format(SOFTWARES))
+        return old_black
+    # bbox is (left, top, right, bottom) with top left as origin
+    bbox = win32gui.GetWindowRect(hwnd)
+    # grap top fifth of image only
+    bbox_topq = (bbox[0], bbox[1], bbox[2], bbox[1] + \
+                int((bbox[3]-bbox[1])*fraction))
+    try:
+        img = ImageGrab.grab(bbox_topq)
+    except OSError as e:
+        logging.info('OSError: {}'.format(e))
+        return old_black
+    try:
+        new_black = count_black_pixels(img)
+        # logging.info('{} {} new_black'.format(get_time(), new_black))
+    except ZeroDivisionError as e:
+        logging.info('ZeroDivisionError: {}'.format(e))
+        return old_black
+    if new_black:
+        check_limit(mbit_serial, new_black, old_black, limit)
+        return new_black
+    else:
+        return old_black
+
+
+def check_limit(mbit_serial, new_black, old_black, limit):
+    ''' Deal with new black pixels detected in communication software. '''
+    logging.info('new_black: {}, old_black: {}, limit: {}'.format(new_black, old_black, limit))
+    if abs(new_black - old_black) > limit:
+        logging.info('Change detected')
+        if mbit_serial:
+            message_mbit(mbit_serial, b'flash')
 
 
 @click.command()
@@ -130,47 +188,25 @@ def serial_connect(serial_port, baud=9600):
      help='Fraction of screen, from the top, to monitor. Default is {}.'
      .format(FRACTION))
 def main(limit, fraction):
+    logging.info('*** starting find_microbit ***\n')
     check_fraction(fraction)
-    print('limit={} fraction={}'.format(limit, fraction))
-    mbit_found = False
-    mbit_port = find_mbit_comport()
-    if mbit_port:
-        print('mbit at port: {}'.format(mbit_port))
-        mbit_found = True
-        mbit_port = serial_connect(mbit_port)
-        message_mbit(mbit_port, b'flash')
-    else:
-        print('mbit not found')
+    logging.info('limit={} fraction={}\n'.format(limit, fraction))
     old_black = 0
     while True:
-        try:
-            hwnd, title = find_hwnd(SOFTWARES)
-        except TypeError:
-            print('no communications software found for {}'.format(SOFTWARES))
-            time.sleep(0.5)
-            continue
-        # bbox is (left, top, right, bottom) with top left as origin
-        bbox = win32gui.GetWindowRect(hwnd)
-        # grap top fifth of image only
-        bbox_topq = (bbox[0], bbox[1], bbox[2], bbox[1] + \
-                     int((bbox[3]-bbox[1])*fraction))
-        try:
-            img = ImageGrab.grab(bbox_topq)
-        except OSError as e:
-            print('OSError: {}'.format(e))
-            continue
-        try:
-            new_black = count_black_pixels(img)
-            # print('{} {} new_black'.format(get_time(), new_black))
-        except ZeroDivisionError as e:
-            print('ZeroDivisionError: {}'.format(e))
-        if abs(new_black - old_black) > limit:
-            print('{} Change detected {}'.format(get_time(), title))
-            if mbit_found:
-                message_mbit(mbit_port, b'flash')
-        old_black = new_black
+        logging.info('new cycle')
+        mbit_port = find_mbit_comport()
+        if mbit_port:
+            with Serial_Con(mbit_port) as mbit_serial:
+                # occassionally mbit_serial is not created, so is None
+                if not mbit_serial:
+                    time.sleep(0.5)
+                    continue
+                mbit_serial.flushInput()
+                logging.info('microbit serial port created at: {}'.format(mbit_port))
+                old_black = check_software(mbit_serial, old_black, limit, fraction)
+        else:
+            logging.info('no microbit found')
         time.sleep(0.5)
-    mbit_port.close()
 
 
 if __name__ == '__main__':
