@@ -1,9 +1,18 @@
 ## activity_indicator 
+
 This project uses the BBC Micro:bit to indicate when somebody is using communication software with an eye tracker. Smartbox Grid 2 & 3 and Tobii Communicator are supported.
 
 ### Project website
+
+Full details of the project and a video showing it in use are at:
+
  <https://seismicmatt.com/give-me-a-minute/>
 
 ### Setup instructions
-I put the setup instructions onto a webpage here:
+
+Detailed setup instructions are here:
 <https://seismicmatt.com/give-me-a-minute-set-up-and-use-instructions/>
+
+### library versions 
+
+freeze.txt has a list of the libraries and their versions in the virtual environment used for developing the Python script.

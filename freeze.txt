@@ -1,0 +1,5 @@
+Click==7.0
+Pillow==5.4.1
+pip-autoremove==0.9.1
+pyserial==3.4
+pywin32==224
