@@ -16,3 +16,13 @@ Detailed setup instructions are here:
 ### library versions
 
 requirements.txt has a list of the libraries and their versions in the virtual environment used for developing the Python script.
+
+### project in use
+
+![activity_indicator in use](/docs/testing.jpg)
+
+### arctic archive
+
+This project is part of the GitHub arctic archive:
+
+<https://archiveprogram.github.com/>
