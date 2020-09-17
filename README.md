@@ -19,7 +19,7 @@ requirements.txt has a list of the libraries and their versions in the virtual e
 
 ### project in use
 
-![activity_indicator in use](/docs/testing.jpg)
+![activity_indicator in use](/docs/readme_docs/testing.jpg)
 
 ### arctic archive
 
