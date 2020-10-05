@@ -50,10 +50,21 @@ SOFTWARES = ['grid', 'communicator']
 
 logging.basicConfig(
     format='%(asctime)s.%(msecs)03d %(message)s',
-    level=logging.INFO,
+#    level=logging.INFO,
+    level=logging.DEBUG,
     datefmt='%H:%M:%S')
 
 
+def singleton(cls, *args):
+    ''' Singleton pattern. '''
+    instances = {}
+    def getinstance(*args):
+        if cls not in instances:
+            instances[cls] = cls(*args)
+        return instances[cls]
+    return getinstance
+
+@singleton
 class Serial_Con():
     ''' Create a serial connection in a context manager. '''
 
@@ -111,6 +122,7 @@ def find_hwnd(softwares):
 
     def _enum_cb(hwnd, results):
         winlist.append((hwnd, win32gui.GetWindowText(hwnd)))
+
     win32gui.EnumWindows(_enum_cb, toplist)
     for sware in softwares:
         # winlist is a list of tuples (window_id, window title)
@@ -126,11 +138,6 @@ def format_list(in_list):
     return str_format.format(*in_list)
 
 
-def image_rms(image):
-    ''' Return the RMS sum for image. '''
-    return sum(ImageStat.Stat(image).rms)
-
-
 def get_time():
     ''' Return a formatted time string. '''
     return datetime.now().strftime('%H:%M:%S')
@@ -141,43 +148,47 @@ def message_mbit(mbit_port, message):
     mbit_port.write(message)
 
 
-def check_software(mbit_serial, old_black, limit, fraction):
-    ''' Check software for a change. '''
+def get_window_top(fraction):
+    ''' Find the top of the window containing target software. '''
     try:
         hwnd, title = find_hwnd(SOFTWARES)
     except TypeError:
         ('no communications software found for {}'.format(SOFTWARES))
-        return old_black
+        return None
     # bbox is (left, top, right, bottom) with top left as origin
     bbox = win32gui.GetWindowRect(hwnd)
     # grap top fifth of image only
     bbox_topq = (bbox[0], bbox[1], bbox[2], bbox[1] + \
                 int((bbox[3]-bbox[1])*fraction))
+    return bbox_topq
+
+
+def num_new_black_pixels(window_top):
+    ''' Check software for a change. '''
     try:
-        img = ImageGrab.grab(bbox_topq)
+        img = ImageGrab.grab(window_top)
     except OSError as e:
         logging.info('OSError: {}'.format(e))
-        return old_black
+        return None
     try:
         new_black = count_black_pixels(img)
-        # logging.info('{} {} new_black'.format(get_time(), new_black))
+        logging.debug('{} new_black: {}'.format(get_time(), new_black))
     except ZeroDivisionError as e:
         logging.info('ZeroDivisionError: {}'.format(e))
-        return old_black
+        return None
     if new_black:
-        check_limit(mbit_serial, new_black, old_black, limit)
         return new_black
     else:
-        return old_black
+        return None
 
 
-def check_limit(mbit_serial, new_black, old_black, limit):
-    ''' Deal with new black pixels detected in communication software. '''
-    logging.info('new_black: {}, old_black: {}, limit: {}'.format(new_black, old_black, limit))
+def check_limit(new_black, old_black, limit):
+    ''' Have we exceeded the threshold for new black pixels? '''
+    logging.debug('new_black: {}, old_black: {}, limit: {}'.format(new_black, old_black, limit))
     if abs(new_black - old_black) > limit:
         logging.info('Change detected')
-        if mbit_serial:
-            message_mbit(mbit_serial, b'flash')
+        return True
+    return False
 
 
 @click.command()
@@ -203,7 +214,18 @@ def main(limit, fraction):
                     continue
                 mbit_serial.flushInput()
                 logging.info('microbit serial port created at: {}'.format(mbit_port))
-                old_black = check_software(mbit_serial, old_black, limit, fraction)
+                # look for the top fraction of a window running the target software
+                window_top = get_window_top(fraction)
+                if window_top is None:
+                    continue
+                # count black pixels in top fraction of target window
+                new_black = num_new_black_pixels(window_top)
+                if new_black is None:
+                    continue
+                is_limit_exceeded = check_limit(new_black, old_black, limit)
+                if is_limit_exceeded:
+                    message_mbit(mbit_serial, b'flash')
+                sleep(0.2)
         else:
             logging.info('no microbit found')
         time.sleep(0.5)
