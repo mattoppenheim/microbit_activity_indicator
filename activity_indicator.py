@@ -43,15 +43,21 @@ user32.SetProcessDPIAware()
 # number of changed pixels to cause an activity trigger
 LIMIT = 3
 FRACTION = 0.2
+BAUD = 115200
+PID_MICROBIT = 516
+# software that requires this script to run in Administrator mode 
+VID_MICROBIT = 3368
 
 # titles of windows to look for activity in
 
-SOFTWARES = ['grid', 'communicator']
+COM_SOFTWARE = ['grid', 'communicator']
+IGNORE = ['grid 3.exe', 'users']
+TIMEOUT = 0.1
 
 logging.basicConfig(
     format='%(asctime)s.%(msecs)03d %(message)s',
-#    level=logging.INFO,
-    level=logging.DEBUG,
+    level=logging.INFO,
+#    level=logging.DEBUG,
     datefmt='%H:%M:%S')
 
 
@@ -78,6 +84,7 @@ class Serial_Con():
         try:
             self.serial_connection = serial.Serial(self.comport, self.baud,
                 rtscts=True, dsrdtr=True)
+            logging.debug('created Serial_Con on: {}'.format(self.comport))
             return self.serial_connection
         except Exception as e:
             logging.info('serial_connect error {}'.format(e))
@@ -108,28 +115,47 @@ def count_black_pixels(image):
     return black
 
 
-def find_mbit_comport():
-    ''' Find the port that a microbit is connected to. '''
+def find_comport(pid, vid, baud):
+    ''' Open the serial port with device with <pid> and <vid> connected. '''
+    ser_port = serial.Serial(timeout = TIMEOUT)
+    ser_port.baudrate = baud
     ports = list(list_ports.comports())
+    logging.debug('scanning ports')
     for p in ports:
-        if (p.pid == 516) and (p.vid == 3368):
+        logging.debug('pid: {} vid: {}'.format(p.pid, p.vid))
+        if (p.pid == pid) and (p.vid == vid):
+            logging.debug('found target device pid: {} vid: {} port: {}'.format(p.pid, p.vid, p.device))
             return str(p.device)
+    return None
 
 
-def find_hwnd(softwares):
-    ''' Find the window id for communication software. '''
+def get_comport(pid, vid, baud):
+    ''' Get a serial connection to pid, vid. '''
+    comport = find_comport(pid, vid, baud)
+    while True:
+        if comport:
+            return comport
+        comport = find_comport(pid, vid, baud)
+        time.sleep(0.5)
+
+
+def find_window_handle(com_software=COM_SOFTWARE, ignore=IGNORE):
+    ''' Find the window h for communication software. '''
     toplist, winlist = [], []
 
-    def _enum_cb(hwnd, results):
-        winlist.append((hwnd, win32gui.GetWindowText(hwnd)))
+    def _enum_cb(window_handle, results):
+        winlist.append((window_handle, win32gui.GetWindowText(window_handle)))
 
     win32gui.EnumWindows(_enum_cb, toplist)
-    for sware in softwares:
+    for sware in com_software:
         # winlist is a list of tuples (window_id, window title)
-        for hwnd, title in winlist:
-            if sware in title.lower():
-                return hwnd, title
-    logging.info('no communications software found for {}'.format(SOFTWARES))
+        logging.debug('items in ignore: {}'.format([item.lower() for item in ignore]))
+        for window_handle, title in winlist:
+            #logging.debug('window_handle: {}, title: {}'.format(window_handle, title))
+            if sware in title.lower() and not any (x in title.lower() for x in ignore):
+                logging.info('found title: {}'.format(title))
+                return window_handle
+    logging.info('no communications software found for {}'.format(com_software))
     time.sleep(0.5)
 
 
@@ -148,19 +174,21 @@ def message_mbit(mbit_port, message):
     mbit_port.write(message)
 
 
-def get_window_top(fraction):
+def get_window_top(fraction, software=COM_SOFTWARE):
     ''' Find the top of the window containing target software. '''
     try:
-        hwnd, title = find_hwnd(SOFTWARES)
+        window_handle = find_window_handle(software)
     except TypeError:
-        ('no communications software found for {}'.format(SOFTWARES))
+        ('no communications software found for {}'.format(software))
         return None
-    # bbox is (left, top, right, bottom) with top left as origin
-    bbox = win32gui.GetWindowRect(hwnd)
+    if window_handle is None:
+        return
+    # window_rect is (left, top, right, bottom) with top left as origin
+    window_rect = win32gui.GetWindowRect(window_handle)
     # grap top fifth of image only
-    bbox_topq = (bbox[0], bbox[1], bbox[2], bbox[1] + \
-                int((bbox[3]-bbox[1])*fraction))
-    return bbox_topq
+    window_top = (window_rect[0], window_rect[1], window_rect[2], window_rect[1] + \
+                int((window_rect[3]-window_rect[1])*fraction))
+    return window_top
 
 
 def num_new_black_pixels(window_top):
@@ -205,12 +233,12 @@ def main(limit, fraction):
     old_black = 0
     while True:
         logging.info('new cycle')
-        mbit_port = find_mbit_comport()
+        mbit_port = get_comport(PID_MICROBIT, VID_MICROBIT, 115200)
         if mbit_port:
+            time.sleep(0.5)
             with Serial_Con(mbit_port) as mbit_serial:
-                # occassionally mbit_serial is not created, so is None
+                # occasionally mbit_serial is not created, so is None
                 if not mbit_serial:
-                    time.sleep(0.5)
                     continue
                 mbit_serial.flushInput()
                 logging.info('microbit serial port created at: {}'.format(mbit_port))
@@ -225,10 +253,9 @@ def main(limit, fraction):
                 is_limit_exceeded = check_limit(new_black, old_black, limit)
                 if is_limit_exceeded:
                     message_mbit(mbit_serial, b'flash')
-                sleep(0.2)
+                old_black = new_black
         else:
             logging.info('no microbit found')
-        time.sleep(0.5)
 
 
 if __name__ == '__main__':
