@@ -5,6 +5,7 @@ This is run from the communications device using Python v3.4 or later.
 v2.1 looks at top fifth of the grid 2 window for a difference in the number of black pixels
 v2.2 works with grid2, grid3 and Tobii communicator
 v3.0 uses context manager to enable hot swapping of microbit
+v3.1 improved finding grid window & hot swapping of microbit
 matt.oppenheim@gmail.com
 '''
 
@@ -57,7 +58,6 @@ TIMEOUT = 0.1
 logging.basicConfig(
     format='%(asctime)s.%(msecs)03d %(message)s',
     level=logging.INFO,
-#    level=logging.DEBUG,
     datefmt='%H:%M:%S')
 
 
@@ -140,7 +140,7 @@ def get_comport(pid, vid, baud):
 
 
 def find_window_handle(com_software=COM_SOFTWARE, ignore=IGNORE):
-    ''' Find the window h for communication software. '''
+    ''' Find the window for communication software. '''
     toplist, winlist = [], []
 
     def _enum_cb(window_handle, results):
@@ -153,7 +153,7 @@ def find_window_handle(com_software=COM_SOFTWARE, ignore=IGNORE):
         for window_handle, title in winlist:
             #logging.debug('window_handle: {}, title: {}'.format(window_handle, title))
             if sware in title.lower() and not any (x in title.lower() for x in ignore):
-                logging.info('found title: {}'.format(title))
+                # logging.debug('found title: {}'.format(title))
                 return window_handle
     logging.info('no communications software found for {}'.format(com_software))
     time.sleep(0.5)
@@ -185,7 +185,7 @@ def get_window_top(fraction, software=COM_SOFTWARE):
         return
     # window_rect is (left, top, right, bottom) with top left as origin
     window_rect = win32gui.GetWindowRect(window_handle)
-    # grap top fifth of image only
+    # grab top fraction of image to reduce processing time
     window_top = (window_rect[0], window_rect[1], window_rect[2], window_rect[1] + \
                 int((window_rect[3]-window_rect[1])*fraction))
     return window_top
@@ -232,30 +232,35 @@ def main(limit, fraction):
     logging.info('limit={} fraction={}\n'.format(limit, fraction))
     old_black = 0
     while True:
-        logging.info('new cycle')
+        logging.info('*** looking for a microbit')
         mbit_port = get_comport(PID_MICROBIT, VID_MICROBIT, 115200)
-        if mbit_port:
-            time.sleep(0.5)
-            with Serial_Con(mbit_port) as mbit_serial:
-                # occasionally mbit_serial is not created, so is None
-                if not mbit_serial:
-                    continue
-                mbit_serial.flushInput()
-                logging.info('microbit serial port created at: {}'.format(mbit_port))
+        logging.info('microbit found at comport: {}'.format(mbit_port))
+        with Serial_Con(mbit_port) as mbit_serial:
+            # occasionally mbit_serial is not created, so is None
+            if not mbit_serial:
+                logging.info('failed to create mbit_serial')
+                time.sleep(0.5)
+                continue
+            logging.info('microbit serial port created at: {}'.format(mbit_port))
+            while True:
+                time.sleep(0.5)
                 # look for the top fraction of a window running the target software
                 window_top = get_window_top(fraction)
                 if window_top is None:
                     continue
                 # count black pixels in top fraction of target window
                 new_black = num_new_black_pixels(window_top)
+                logging.debug('new_black: {}'.format(new_black))
                 if new_black is None:
                     continue
                 is_limit_exceeded = check_limit(new_black, old_black, limit)
                 if is_limit_exceeded:
-                    message_mbit(mbit_serial, b'flash')
+                    try:
+                        mbit_serial.write(b'flash')
+                    except serial.SerialException as e:
+                        logging.info('connection to microbit failed {}'.format(e))
+                        break
                 old_black = new_black
-        else:
-            logging.info('no microbit found')
 
 
 if __name__ == '__main__':
