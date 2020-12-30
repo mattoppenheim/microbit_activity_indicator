@@ -5,7 +5,7 @@ This is run from the communications device using Python v3.4 or later.
 v2.1 looks at top fifth of the grid 2 window for a difference in the number of black pixels
 v2.2 works with grid2, grid3 and Tobii communicator
 v3.0 uses context manager to enable hot swapping of microbit
-v3.1 improved finding grid window & hot swapping of microbit
+v3.1 improved finding grid window and hot swapping of microbit
 matt.oppenheim@gmail.com
 '''
 
