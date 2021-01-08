@@ -29,5 +29,4 @@ This project is part of the GitHub arctic archive:
 
 ### micro:bit v1 and v2 compatibility
 
-The code only works with v1 of the micro:bit at the moment. I am trying to
-figure out why.
+The hex file works with v1 and v2 of the micro:bit.
