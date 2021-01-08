@@ -1,5 +1,5 @@
 ''' show animation when signal received over serial port
-This file  shoule be written to the BBC Micro:bit using Mu
+This file  should be written to the BBC Micro:bit using Mu
 matt.oppenheim@gmail.com '''
 from microbit import *
 
@@ -65,6 +65,7 @@ throbs = [throb_1, throb_2, throb_3, throb_4, throb_5, throb_6,
 
 def check_uart():
     ''' returns true if control character received '''
+    in_line = None
     try:
         in_line = uart.readline()
     except Exception as e:
