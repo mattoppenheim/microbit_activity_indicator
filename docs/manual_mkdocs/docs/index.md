@@ -234,3 +234,70 @@ Ideally, this should be as far as you need to come.  Hopefully, the script is ru
 The script is robust to the micro:bit being removed and then plugged back in again.
 
 If so, please leave a comment. If not, maybe something else in this guide can help. If you can't get the script running, please get in touch. 
+
+# Auto-start for people running the script using Python 
+
+This section details how to have the script run automatically when you start up your communication device if you are running the script through Python, e.g. using the command 'python activity_indicator.py' in a terminal.
+
+This command needs to go into a .cmd file in the same Startup directory as is used if you are automatically running the .exe file. This directory is detailed in the previous section.
+
+The files in the Startup directory will only run for the user who created the file, so log onto Windows as the user who will be using the communication software.
+
+Go to this Startup directory by typing ‘shell:startup into the top of a file explorer as detailed in the last section. Create a file called e.g. start_give_me_a_minute.cmd by right clicking in the directory and selecting ‘New’, ‘Text Document’.
+
+create_auto_start.png
+
+<figure>
+  <img src="../images/create_auto_start.png"/>
+<figcaption>Create a Text Document in the Startup directory.</figcaption>
+</figure>
+
+You can give the file any name that you like as long as it ends with .cmd. Files in this directory will run automatically when Windows is started.
+
+<figure>
+  <img src="../images/create_auto_start_2.jpg"/>
+<figcaption>Give the file a name ending in .cmd.</figcaption>
+</figure>
+
+Right-click on the file name and select Edit from the drop-down menu.
+
+Put the command that you use to start the script into this file, using the full path to the .py file. e.g. 
+
+python c:\microbit_activity_indicator\dist\activity_indicator.exe
+
+Save the file. This file will run whenever you start up Windows.
+
+Ideally, this should be as far as you need to read in this guide. If everything is up and running, please leave a comment. If not, see if the rest of this guide can help you. If not, get in touch with me.
+
+# Command line options to adjust sensitivity
+
+Different setups have different sized screens and windows. So the threshold of detection may need to be adjusted to prevent false triggers from large blinking cursors or moving mouse arrows. Or the software may not be triggering as much as it should due to the text window being smaller than usual.
+
+The threshold for detection can be adjusted from the command line.
+
+If you open a terminal or PowerShell (type ‘powershell’ into the search box in the bottom bar in Windows), go to the directory with the activity_indicator.exe file and type ‘activity_indicator.exe –help’ (that is <two dashes>help) you will see a couple of command line parameters that can be used to adjust how the software runs. e.g.
+
+.\activity_indicator.exe -help
+
+output:
+
+Usage: activity_indicator.exe [OPTIONS]
+
+–limit INTEGER Number of changed pixels to trigger event. Default is 3.
+
+–fraction FLOAT Fraction of screen, from the top, to monitor. Default is 0.2.
+
+–help Show this message and exit.
+
+The ‘–limit’ parameter allows you to tune how sensitive the watched area of the AAC software is to change. This is useful as different panels have different sizes.
+
+The ‘–fraction’ parameter allows you to change the fraction of the AAC screen that is monitored for a change. Usually we only need to watch the top 20% or so, as this is where the text appears.
+
+<figure>
+  <img src="../images/powershell_help.jpg"/>
+<figcaption>Using PowerShell to adjust command line properties of activity_indicator.exe.</figcaption>
+</figure>
+
+# VCRUNTIME140.dll missing error 
+
+If a ‘VCRUNTIME140.dll missing error’ pops up instead don’t panic! The code relies on some Microsoft Visual Studio libraries being installed. You should put the error you get into the Google machine to find the correct Visual Studio download as this changes as new versions are released. At the time of writing, this link was: [https://www.microsoft.com/en-us/download/details.aspx?id=52685](https://www.microsoft.com/en-us/download/details.aspx?id=52685)

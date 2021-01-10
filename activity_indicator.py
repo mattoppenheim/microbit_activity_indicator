@@ -74,7 +74,7 @@ def singleton(cls, *args):
 class Serial_Con():
     ''' Create a serial connection in a context manager. '''
 
-    def __init__(self, comport, baud=9600):
+    def __init__(self, comport, baud=115200):
         self.comport = comport
         self.baud = baud
 
@@ -96,7 +96,7 @@ class Serial_Con():
             self.serial_connection.close()
         except Exception as e:
             logging.info('failed to close serial_connection: {}'.format(e))
-        logging.info('Serial_Con closed')
+        logging.info('serial connection closed')
 
 
 def check_fraction(fraction):
