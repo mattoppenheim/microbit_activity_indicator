@@ -60,19 +60,19 @@ Run the Windows software – double click on `activity_indicator.exe`. This is n
 If the microbit is not plugged in you will see the message `no microbit found`. Plugin the microbit. The software allows for the microbit to be removed and plugged in during use. The screenshot below shows what you will see when the software is started with no microbit plugged in and no communication software running. You can start the communication software with the program running and it will be picked up. 
 
 <figure>
-  <img src="./images/mbit_not_connected.jpg" alt="console display"/>
+  <img src=".images/mbit_not_connected.jpg" alt="console display"/>
   <figcaption>Display with no micro:bit connected.</figcaption>
 </figure>
 
 <figure>
-  <img src="./images/mbit_connected_display.jpg" alt="console display"/>
+  <img src=".images/mbit_connected_display.jpg" alt="console display"/>
   <figcaption>Display with micro:bit connected.</figcaption>
 </figure>
 
 When the communication software is running, the number of black pixels detected in the message window and the limit to trigger a detection is displayed. These are debugging messages to allow me to see what is happening with the software as I develop it. The detection limit can be changed using the command line - see the section 'Command line options to adjust sensitivity'. The screenshot below shows an example of a change detected in either Grid or Communicator.
 
 <figure>
-  <img src="./images/change_detected_display.jpg" alt="console display"/>
+  <img src=".images/change_detected_display.jpg" alt="console display"/>
   <figcaption>Display when a change is detected.</figcaption>
 </figure>
 
@@ -81,7 +81,7 @@ When the communication software is running, the number of black pixels detected 
 When the micro:bit is plugged in, it should show a vertical bar on the LEDs. When the text at the top of a Grid or Communicator window changes, the bar should spin around. Pressing button A on the micro:bit causes this to happen as well. This feature is included so you can test the micro:bit is working. The picture below shows the vertical bar pattern on the LEDs.
 
 <figure>
-  <img src="./images/microbit_standby_2.jpg" alt="Waiting for a detection"/>
+  <img src=".images/microbit_standby_2.jpg" alt="Waiting for a detection"/>
   <figcaption>micro:bit displays a static vertical bar when there is no user activity.</figcaption>
 </figure>
 
@@ -103,26 +103,26 @@ Go to the GitHub site: [https://github.com/hardwaremonkey/microbit_activity_indi
 Click on the `Clone or Download` button, indicated in the screenshot below.
 
 <figure>
-  <img src="../images/github_download.jpg" alt="GitHub site"/>
+  <img src=".images/github_download.jpg" alt="GitHub site"/>
   <figcaption>GitHub site. Download all of the files as a single zip file, unless you are familiar with using git.</figcaption>
 </figure>
 
 <figure>
-  <img src="../images/github_download_zip.jpg" alt="GitHub site"/>
+  <img src=".images/github_download_zip.jpg" alt="GitHub site"/>
   <figcaption>Click on `Download ZIP` to download all of the site as a single zip file.</figcaption>
 </figure>
 
 The downloaded file is called microbit_activity_indicator.zip and is about 12 Mb large. 
 
 <figure>
-  <img src="../images/saved_zip_file.jpg" alt="GitHub site"/>
+  <img src="./images/saved_zip_file.jpg" alt="GitHub site"/>
   <figcaption>Click on 'Download ZIP' to download all of the site as a single zip file.</figcaption>
 </figure>
 
 Unzip the .zip file somewhere. You can do this by right-clicking on the .zip file and selecting the option `Open`.
 
 <figure>
-  <img src="../images/unzipped_repository.jpg"/>
+  <img src="./images/unzipped_repository.jpg"/>
   <figcaption>Unzipped repository.</figcaption>
 </figure>
 
@@ -131,7 +131,7 @@ Unzip the .zip file somewhere. You can do this by right-clicking on the .zip fil
  The file called ubit_flash.hex needs to be dragged and dropped into the MICROBIT folder. This will program the board. If you are interested, the Micropython script that creates the .hex file is in ubit_flash.py. I put up all the code used in the project to enable anybody else to improve it.
 
  <figure>
-  <img src="../images/drag_hex_file_to_microbit.jpg"/>
+  <img src="./images/drag_hex_file_to_microbit.jpg"/>
   <figcaption>Drag and drop the file ubit_flash.hex to the MICROBIT folder.</figcaption>
 </figure>
 
@@ -148,7 +148,7 @@ In this step, we need to install the software that monitors Grid or Communicator
 The monitoring software is all in a single file called `activity_indicator.exe` which is in the directory called /dist (short for distribution) in the files that you downloaded and unzipped earlier. The screenshot below shows this:
 
 <figure>
-  <img src="../images/activity_indicator_executable.jpg"/>
+  <img src="./images/activity_indicator_executable.jpg"/>
   <figcaption>activity indicator executable.</figcaption>
 </figure>
 
@@ -159,14 +159,14 @@ The first time that you try to do this creates a warning screen `Windows protect
 Right click on the file `activity_indicator.exe` and select `properties`:
 
 <figure>
-  <img src="../images/selecting_properties.png"/>
+  <img src="./images/selecting_properties.png"/>
 <figcaption>Select properties to find the security settings for the file.</figcaption>
 </figure>
 
 In the next menu, tick in the `unblock` tick box:
 
 <figure>
-  <img src="../images/selecting_unblock.png"/>
+  <img src="./images/selecting_unblock.png"/>
 <figcaption>Select unblock to enable the file to run without being an administrator.</figcaption>
 </figure>
 
@@ -195,35 +195,35 @@ shell:startup
 into an explorer window at the top.
 
 <figure>
-  <img src="../images/shell_startup.png"/>
+  <img src="./images/shell_startup.png"/>
 <figcaption>Finding the directory where files go to automatically run at startup.</figcaption>
 </figure>
 
 This will take you to your Startup directory. This Startup directory is in a different location for each user account that Windows has for your system, which is why you need to be logged in as the user who wants `activity_indicator.exe` to run at startup. Everything in this directory automatically runs when Windows starts up. In this directory, right-click on the screen and select `New`, then `Shortcut` (second from the top) to create a link to where you saved `activity_indicator.exe`.
 
 <figure>
-  <img src="../images/start_menu_link-1.jpg"/>
+  <img src="./images/start_menu_link-1.jpg"/>
 <figcaption>Creating a shortcut to the file to run at startup.</figcaption>
 </figure>
 
 Now click on `Browse` and navigate to where you saved `activity_indicator.exe`.
 
 <figure>
-  <img src="../images/20_link_browse.jpg"/>
+  <img src="./images/20_link_browse.jpg"/>
 <figcaption>Select `Browse` and navigate to the activity_indicator.exe file.</figcaption>
 </figure>
 
 Select the file `activity_indicator.exe`, click `OK`, `Next` and `Finish`. 
 
 <figure>
-  <img src="../images/link_select_executable.jpg"/>
+  <img src="./images/link_select_executable.jpg"/>
 <figcaption>Select activity_indicator.exe, then click 'OK', 'Next' and 'Finish'.</figcaption>
 </figure>
 
 You should now have a new shortcut in your Startup directory.
 
 <figure>
-  <img src="../images/link_shortcut_created.jpg"/>
+  <img src="./images/link_shortcut_created.jpg"/>
 <figcaption>Shortcut to activity_indicator.exe in your start-up directory.</figcaption>
 </figure>
 
@@ -246,14 +246,14 @@ The files in the Startup directory will only run for the user who created the fi
 Go to this Startup directory by typing `shell:startup` into the top of a file explorer as detailed in the last section. Create a file called e.g. start_give_me_a_minute.cmd by right clicking in the directory and selecting `New`, `Text Document`.
 
 <figure>
-  <img src="../images/create_auto_start.png"/>
+  <img src="./images/create_auto_start.png"/>
 <figcaption>Create a Text Document in the Startup directory.</figcaption>
 </figure>
 
 You can give the file any name that you like as long as it ends with .cmd. Files in this directory will run automatically when Windows is started.
 
 <figure>
-  <img src="../images/create_auto_start_2.jpg"/>
+  <img src="./images/create_auto_start_2.jpg"/>
 <figcaption>Give the file a name ending in .cmd.</figcaption>
 </figure>
 
@@ -292,7 +292,7 @@ The `–limit` parameter allows you to tune how sensitive the watched area of th
 The `–fraction` parameter allows you to change the fraction of the AAC screen that is monitored for a change. Usually we only need to watch the top 20% or so, as this is where the text appears.
 
 <figure>
-  <img src="../images/powershell_help.jpg"/>
+  <img src="./images/powershell_help.jpg"/>
 <figcaption>Using PowerShell to adjust command line properties of activity_indicator.exe.</figcaption>
 </figure>
 
