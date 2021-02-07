@@ -11,7 +11,7 @@ Full details of the project and a video showing it in use are at:
 ### Setup instructions
 
 Detailed setup instructions are here:
-<https://seismicmatt.com/give-me-a-minute-set-up-and-use-instructions/>
+<https://hardwaremonkey.github.io/microbit_activity_indicator/>
 
 ### library versions
 
