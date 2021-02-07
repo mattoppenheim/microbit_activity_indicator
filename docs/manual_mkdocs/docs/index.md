@@ -60,19 +60,19 @@ Run the Windows software – double click on `activity_indicator.exe`. This is n
 If the microbit is not plugged in you will see the message `no microbit found`. Plugin the microbit. The software allows for the microbit to be removed and plugged in during use. The screenshot below shows what you will see when the software is started with no microbit plugged in and no communication software running. You can start the communication software with the program running and it will be picked up. 
 
 <figure>
-  <img src=".images/mbit_not_connected.jpg" alt="console display"/>
+  <img src="./images/mbit_not_connected.jpg" alt="console display"/>
   <figcaption>Display with no micro:bit connected.</figcaption>
 </figure>
 
 <figure>
-  <img src=".images/mbit_connected_display.jpg" alt="console display"/>
+  <img src="./images/mbit_connected_display.jpg" alt="console display"/>
   <figcaption>Display with micro:bit connected.</figcaption>
 </figure>
 
 When the communication software is running, the number of black pixels detected in the message window and the limit to trigger a detection is displayed. These are debugging messages to allow me to see what is happening with the software as I develop it. The detection limit can be changed using the command line - see the section 'Command line options to adjust sensitivity'. The screenshot below shows an example of a change detected in either Grid or Communicator.
 
 <figure>
-  <img src=".images/change_detected_display.jpg" alt="console display"/>
+  <img src="./images/change_detected_display.jpg" alt="console display"/>
   <figcaption>Display when a change is detected.</figcaption>
 </figure>
 
@@ -81,7 +81,7 @@ When the communication software is running, the number of black pixels detected 
 When the micro:bit is plugged in, it should show a vertical bar on the LEDs. When the text at the top of a Grid or Communicator window changes, the bar should spin around. Pressing button A on the micro:bit causes this to happen as well. This feature is included so you can test the micro:bit is working. The picture below shows the vertical bar pattern on the LEDs.
 
 <figure>
-  <img src=".images/microbit_standby_2.jpg" alt="Waiting for a detection"/>
+  <img src="./images/microbit_standby_2.jpg" alt="Waiting for a detection"/>
   <figcaption>micro:bit displays a static vertical bar when there is no user activity.</figcaption>
 </figure>
 
@@ -103,12 +103,12 @@ Go to the GitHub site: [https://github.com/hardwaremonkey/microbit_activity_indi
 Click on the `Clone or Download` button, indicated in the screenshot below.
 
 <figure>
-  <img src=".images/github_download.jpg" alt="GitHub site"/>
+  <img src="./images/github_download.jpg" alt="GitHub site"/>
   <figcaption>GitHub site. Download all of the files as a single zip file, unless you are familiar with using git.</figcaption>
 </figure>
 
 <figure>
-  <img src=".images/github_download_zip.jpg" alt="GitHub site"/>
+  <img src="./images/github_download_zip.jpg" alt="GitHub site"/>
   <figcaption>Click on `Download ZIP` to download all of the site as a single zip file.</figcaption>
 </figure>
 
