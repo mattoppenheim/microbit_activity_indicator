@@ -1,5 +1,5 @@
-Click==7.0
-Pillow==7.2.0
-pip-autoremove==0.9.1
-pyserial==3.4
-pywin32==224
+click==7.1.2
+Pillow==8.1.2
+pyinstaller==4.2
+pyserial==3.5
+pywin32==300

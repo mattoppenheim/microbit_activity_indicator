@@ -44,14 +44,15 @@ user32.SetProcessDPIAware()
 # number of changed pixels to cause an activity trigger
 LIMIT = 3
 FRACTION = 0.2
-BAUD = 115200
+BAUD = 9600
 PID_MICROBIT = 516
-# software that requires this script to run in Administrator mode 
+# software that requires this script to run in Administrator mode
 VID_MICROBIT = 3368
 
 # titles of windows to look for activity in
 
 COM_SOFTWARE = ['grid', 'communicator']
+# extra windows that are not visible can be created by e.g. Grid 3
 IGNORE = ['grid 3.exe', 'users']
 TIMEOUT = 0.1
 
@@ -74,11 +75,11 @@ def singleton(cls, *args):
 class Serial_Con():
     ''' Create a serial connection in a context manager. '''
 
-    def __init__(self, comport, baud=115200):
+    def __init__(self, comport, baud=BAUD):
         self.comport = comport
         self.baud = baud
 
-    
+
     def __enter__(self):
         ''' Return a serial port connection. '''
         try:
@@ -233,7 +234,7 @@ def main(limit, fraction):
     old_black = 0
     while True:
         logging.info('*** looking for a microbit')
-        mbit_port = get_comport(PID_MICROBIT, VID_MICROBIT, 115200)
+        mbit_port = get_comport(PID_MICROBIT, VID_MICROBIT, BAUD)
         logging.info('microbit found at comport: {}'.format(mbit_port))
         with Serial_Con(mbit_port) as mbit_serial:
             # occasionally mbit_serial is not created, so is None
@@ -242,6 +243,7 @@ def main(limit, fraction):
                 time.sleep(0.5)
                 continue
             logging.info('microbit serial port created at: {}'.format(mbit_port))
+            mbit_serial.write(b'flash')
             while True:
                 time.sleep(0.5)
                 # look for the top fraction of a window running the target software
