@@ -3,6 +3,9 @@ This file  should be written to the BBC Micro:bit using Mu
 matt.oppenheim@gmail.com '''
 from microbit import *
 
+# baud rate for the serial port connection
+BAUD = 9600
+
 throb_1 = Image(
     '00100:'
     '00100:'
@@ -88,7 +91,7 @@ def show_throb():
         sleep(100)
 
 
-uart.init()
+uart.init(baudrate=BAUD)
 
 while True:
     if check_uart():
