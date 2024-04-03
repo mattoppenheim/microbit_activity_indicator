@@ -1,5 +1,5 @@
 click==7.1.2
-Pillow==10.2.0
+Pillow==10.3.0
 pyinstaller==5.13.1
 pyserial==3.5
 pywin32==301
